@@ -1,51 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function AdminComplaints() {
-  const [complaints] = useState([
-    {
-      id: 1,
-      title: "WiFi not working in Lab 2",
-      category: "Network",
-      priority: "HIGH",
-      department: "IT Department",
-      status: "SUBMITTED",
-      date: "2025-03-01"
-    },
-    {
-      id: 2,
-      title: "Water leak in washroom",
-      category: "Facility",
-      priority: "MEDIUM",
-      department: "Facilities Department",
-      status: "IN_PROGRESS",
-      date: "2025-03-02"
-    },
-    {
-      id: 3,
-      title: "Lecture timetable issue",
-      category: "Academic",
-      priority: "LOW",
-      department: "Academic Department",
-      status: "SUBMITTED",
-      date: "2025-03-03"
-    },
-    {
-      id: 4,
-      title: "Projector not working",
-      category: "Facility",
-      priority: "HIGH",
-      department: "IT Department",
-      status: "RESOLVED",
-      date: "2025-03-04"
-    }
-  ]);
-
+  const [complaints, setComplaints] = useState([]);
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [loading, setLoading] = useState(true);
 
-  const filteredComplaints = complaints.filter((complaint) => {
+  const fetchComplaints = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/api/admin/complaints");
+      const result = await res.json();
+      setComplaints(result.data || []);
+    } catch (err) {
+      alert("Backend not running. Please run backend on port 5000");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
+
+  const filteredComplaints = complaints.filter((c) => {
     if (statusFilter === "ALL") return true;
-    return complaint.status === statusFilter;
+    return c.status === statusFilter;
   });
 
   return (
@@ -53,7 +33,11 @@ function AdminComplaints() {
       <Link to="/admin/dashboard">← Back to Dashboard</Link>
 
       <h1>All Complaints</h1>
-      <p>View and filter all complaints in the system</p>
+      <p>Data from MySQL database</p>
+
+      <button onClick={fetchComplaints} style={{ marginBottom: "10px" }}>
+        Refresh
+      </button>
 
       <div style={{ marginBottom: "15px" }}>
         <label>Status Filter: </label>
@@ -71,37 +55,39 @@ function AdminComplaints() {
         </select>
       </div>
 
-      <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%", maxWidth: "900px" }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Priority</th>
-            <th>Department</th>
-            <th>Status</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {filteredComplaints.map((complaint) => (
-            <tr key={complaint.id}>
-              <td>{complaint.id}</td>
-              <td>{complaint.title}</td>
-              <td>{complaint.category}</td>
-              <td>{complaint.priority}</td>
-              <td>{complaint.department}</td>
-              <td>{complaint.status}</td>
-              <td>{complaint.date}</td>
+      {loading ? (
+        <p>Loading complaints...</p>
+      ) : (
+        <table border="1" cellPadding="10" style={{ borderCollapse: "collapse", width: "100%", maxWidth: "900px" }}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Date</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredComplaints.map((c) => (
+              <tr key={c.id}>
+                <td>{c.id}</td>
+                <td>{c.title}</td>
+                <td>{c.category}</td>
+                <td>{c.priority}</td>
+                <td>{c.department || "-"}</td>
+                <td>{c.status}</td>
+                <td>{c.created_at ? new Date(c.created_at).toLocaleDateString() : "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-      {filteredComplaints.length === 0 && <p>No complaints found for this status.</p>}
+      {!loading && filteredComplaints.length === 0 && <p>No complaints found.</p>}
     </div>
   );
 }
 
-export default AdminComplaints;
