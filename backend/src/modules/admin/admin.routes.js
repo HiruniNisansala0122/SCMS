@@ -1,29 +1,21 @@
-const express = require("express");
+
+   const express = require("express");
+
+const {
+  getDepartments,
+  createDepartment,
+  getAdminComplaints,
+  getAdminReports
+} = require("./admin.controller");
 
 const router = express.Router();
 
-router.get("/departments", (req, res) => {
-  res.json({
-    message: "Get all departments"
-  });
-});
+router.get("/departments", getDepartments);
 
-router.post("/departments", (req, res) => {
-  res.json({
-    message: "Create a new department"
-  });
-});
+router.post("/departments", createDepartment);
 
-router.get("/admin/complaints", (req, res) => {
-  res.json({
-    message: "Get all complaints for admin"
-  });
-});
+router.get("/admin/complaints", getAdminComplaints);
 
-router.get("/admin/reports", (req, res) => {
-  res.json({
-    message: "Get admin reports"
-  });
-});
+router.get("/admin/reports", getAdminReports);
 
 module.exports = router;
