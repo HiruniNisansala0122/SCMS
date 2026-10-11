@@ -1,12 +1,32 @@
-const getDepartmentList = async () => {
-  return [];
+const db = require("../../config/db");
+
+const getDepartmentList = () => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "SELECT * FROM departments WHERE is_active = TRUE ORDER BY id",
+      (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      }
+    );
+  });
 };
 
-const addDepartment = async (departmentData) => {
-  return {
-    id: 0,
-    ...departmentData
-  };
+const addDepartment = (name, description) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "INSERT INTO departments (name, description) VALUES (?, ?)",
+      [name, description],
+      (err, result) => {
+        if (err) return reject(err);
+        resolve({
+          id: result.insertId,
+          name,
+          description
+        });
+      }
+    );
+  });
 };
 
 const getAllComplaintsForAdmin = async () => {
