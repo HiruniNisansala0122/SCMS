@@ -1,1 +1,15 @@
-database/03_complaints.sql
+USE complaint_db;
+
+CREATE TABLE complaints (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    category VARCHAR(50) DEFAULT 'General',
+    priority ENUM('LOW','MEDIUM','HIGH') DEFAULT 'MEDIUM',
+    status ENUM('SUBMITTED','ASSIGNEED','IN_PROGRESS','RESOLVED','VERIFIED_CLOSED') DEFAULT 'SUBMITTED',
+    attachment VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+);
